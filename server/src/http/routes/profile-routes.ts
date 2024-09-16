@@ -1,7 +1,7 @@
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { validateAuth } from '@/http/middlewares/auth'
-import { createToken } from '@/lib/utils/createToken'
+import { createJwtToken } from '@/lib/utils/createJwtToken'
 import { getPropertyFromUnknown } from '@/lib/utils/getPropertyFromUnknown'
 import { zValidator } from '@hono/zod-validator'
 import { eq, sql } from 'drizzle-orm'
@@ -52,7 +52,7 @@ export const profileRoutes = new Hono()
     const user = value[0]
 
     // create a new token with the updated user
-    await createToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
+    await createJwtToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
 
     return c.text('', 204)
   })

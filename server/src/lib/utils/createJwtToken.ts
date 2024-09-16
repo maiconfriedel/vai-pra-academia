@@ -14,7 +14,7 @@ type PayloadType = {
   notificationHour: string | null
 }
 
-export const createToken = async (user: PayloadType, c: Context) => {
+export const createJwtToken = async (user: PayloadType, c: Context) => {
   const token = await sign(
     {
       user,

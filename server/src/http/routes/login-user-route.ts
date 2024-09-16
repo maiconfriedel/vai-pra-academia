@@ -1,5 +1,5 @@
 import { db } from '@/db'
-import { createToken } from '@/lib/utils/createToken'
+import { createJwtToken } from '@/lib/utils/createJwtToken'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
@@ -29,7 +29,7 @@ export const loginUserRoute = new Hono().post(
 
     if (!isValid) throw new HTTPException(404, { message: 'User not found' })
 
-    await createToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
+    await createJwtToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
 
     return c.text('', 204)
   },
