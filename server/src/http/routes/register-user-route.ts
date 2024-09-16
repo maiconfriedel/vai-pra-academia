@@ -50,9 +50,6 @@ export const registerUserRoute = new Hono().post(
       })
       .returning()
 
-    return c.json(
-      { user: omit(user[0], ['password', 'createdAt', 'updatedAt']) },
-      201,
-    )
+    return c.json({ user: omit(user[0], ['password']) }, 201)
   },
 )

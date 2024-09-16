@@ -1,9 +1,11 @@
 import { db } from '@/db'
-import { createJwtToken } from '@/lib/utils/createJwtToken'
+import { env } from '@/env'
 import { zValidator } from '@hono/zod-validator'
+import dayjs from 'dayjs'
 import { Hono } from 'hono'
+import { setCookie } from 'hono/cookie'
 import { HTTPException } from 'hono/http-exception'
-import omit from 'just-omit'
+import { sign } from 'hono/jwt'
 import { z } from 'zod'
 
 const loginSchema = z.object({
@@ -29,7 +31,25 @@ export const loginUserRoute = new Hono().post(
 
     if (!isValid) throw new HTTPException(404, { message: 'User not found' })
 
-    await createJwtToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
+    const token = await sign(
+      {
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+        exp: dayjs().add(7, 'day').unix(),
+        iat: dayjs().unix(),
+        nbf: dayjs().unix(),
+      },
+      env.JWT_TOKEN_SECRET,
+      'HS256',
+    )
+
+    setCookie(c, 'auth', token, {
+      httpOnly: true,
+      path: '/',
+      maxAge: 60 * 60 * 24 * 7, // 7 days
+    })
 
     return c.text('', 204)
   },

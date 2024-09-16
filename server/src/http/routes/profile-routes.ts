@@ -1,7 +1,6 @@
 import { db } from '@/db'
 import { users } from '@/db/schema'
 import { validateAuth } from '@/http/middlewares/auth'
-import { createJwtToken } from '@/lib/utils/createJwtToken'
 import { getPropertyFromUnknown } from '@/lib/utils/getPropertyFromUnknown'
 import { zValidator } from '@hono/zod-validator'
 import { eq, sql } from 'drizzle-orm'
@@ -22,8 +21,20 @@ const updateProfileSchema = z.object({
 
 export const profileRoutes = new Hono()
   .use(validateAuth)
-  .get('/', (c) => {
-    return c.json({ user: c.var.user }, 200)
+  .get('/', async (c) => {
+    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
+
+    const user = await db.query.users.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, userId!)
+      },
+    })
+
+    if (!user) {
+      return c.text('', 404)
+    }
+
+    return c.json({ user: omit(user, ['password']) }, 200)
   })
   .patch('/', zValidator('json', updateProfileSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
@@ -36,7 +47,7 @@ export const profileRoutes = new Hono()
       desiredWeekFrequency,
     } = c.req.valid('json')
 
-    const value = await db
+    await db
       .update(users)
       .set({
         name,
@@ -47,12 +58,6 @@ export const profileRoutes = new Hono()
         updatedAt: sql`now()`,
       })
       .where(eq(users.id, userId!))
-      .returning()
-
-    const user = value[0]
-
-    // create a new token with the updated user
-    await createJwtToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
 
     return c.text('', 204)
   })
