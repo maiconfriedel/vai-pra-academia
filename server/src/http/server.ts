@@ -20,7 +20,7 @@ app.onError((err, c) => {
     return c.json({ message: err.message, details: err.cause }, err.status)
   }
 
-  return c.json({ message: 'Internal server error', details: err }, 500)
+  return c.json({ message: err.message }, 500)
 })
 
 export default app
