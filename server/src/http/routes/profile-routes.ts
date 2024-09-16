@@ -6,6 +6,7 @@ import { getPropertyFromUnknown } from '@/lib/utils/getPropertyFromUnknown'
 import { zValidator } from '@hono/zod-validator'
 import { eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
+import omit from 'just-omit'
 import { z } from 'zod'
 
 const updateProfileSchema = z.object({
@@ -51,18 +52,7 @@ export const profileRoutes = new Hono()
     const user = value[0]
 
     // create a new token with the updated user
-    await createToken(
-      {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        desiredWeekFrequency: user.desiredWeekFrequency,
-        imageUrl: user.imageUrl,
-        profileVisibility: user.profileVisibility,
-        notificationHour: user.notificationHour,
-      },
-      c,
-    )
+    await createToken(omit(user, ['password', 'createdAt', 'updatedAt']), c)
 
     return c.text('', 204)
   })
