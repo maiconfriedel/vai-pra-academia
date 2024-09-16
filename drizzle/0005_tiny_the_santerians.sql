@@ -1,0 +1,1 @@
+ALTER TABLE "levels_configuration" RENAME COLUMN "level" TO "desired_week_frequency";

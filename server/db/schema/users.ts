@@ -1,4 +1,5 @@
 import { createId } from '@paralleldrive/cuid2'
+import { relations } from 'drizzle-orm'
 import {
   integer,
   pgEnum,
@@ -7,6 +8,7 @@ import {
   time,
   timestamp,
 } from 'drizzle-orm/pg-core'
+import { levels, registrations } from '.'
 
 export const profileVisibility = pgEnum('profile_visibility', [
   'public',
@@ -36,3 +38,8 @@ export const users = pgTable('users', {
     .notNull()
     .defaultNow(),
 })
+
+export const usersRelations = relations(users, ({ many }) => ({
+  registrations: many(registrations),
+  levels: many(levels),
+}))

@@ -4,7 +4,8 @@
     "dev": "bun run --hot server/http/server.ts",
     "generate": "drizzle-kit generate",
     "migrate": "drizzle-kit migrate",
-    "studio": "drizzle-kit studio"
+    "studio": "drizzle-kit studio",
+    "seed": "bun run server/db/seed.ts"
   },
   "dependencies": {
     "@hono/zod-validator": "^0.2.2",

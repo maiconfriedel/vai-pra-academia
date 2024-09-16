@@ -15,6 +15,34 @@
       "when": 1726493235444,
       "tag": "0001_tough_leopardon",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1726525986715,
+      "tag": "0002_giant_sage",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "7",
+      "when": 1726527552392,
+      "tag": "0003_tranquil_runaways",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1726527684504,
+      "tag": "0004_slow_star_brand",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1726528339576,
+      "tag": "0005_tiny_the_santerians",
+      "breakpoints": true
     }
   ]
 }
