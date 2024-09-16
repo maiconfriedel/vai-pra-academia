@@ -1,6 +1,6 @@
-import { db } from '@/db'
-import { env } from '@/env'
 import { zValidator } from '@hono/zod-validator'
+import { db } from '@server/db'
+import { env } from '@server/env'
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'

@@ -1,4 +1,4 @@
-import { env } from '@/env'
+import { env } from '@server/env'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'

@@ -1,6 +1,6 @@
-import { db } from '@/db'
-import { users } from '@/db/schema'
 import { zValidator } from '@hono/zod-validator'
+import { db } from '@server/db'
+import { users } from '@server/db/schema'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import omit from 'just-omit'
