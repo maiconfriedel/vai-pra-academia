@@ -43,6 +43,13 @@
       "when": 1726528339576,
       "tag": "0005_tiny_the_santerians",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1726529010757,
+      "tag": "0006_same_salo",
+      "breakpoints": true
     }
   ]
 }

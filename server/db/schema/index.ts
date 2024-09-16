@@ -1,3 +1,4 @@
+export * from './friendships'
 export * from './levels'
 export * from './levels-configuration'
 export * from './registrations'
