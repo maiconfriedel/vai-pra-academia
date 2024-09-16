@@ -13,13 +13,16 @@ export const profileVisibility = pgEnum('profile_visibility', [
   'private',
 ])
 
+export const loginProvider = pgEnum('login_provider', ['email', 'google'])
+
 export const users = pgTable('users', {
   id: text('id')
     .$defaultFn(() => createId())
     .primaryKey(),
   name: text('name').notNull(),
   email: text('email').notNull().unique(),
-  password: text('password').notNull(),
+  password: text('password'),
+  loginProvider: loginProvider('login_provider').notNull().default('email'),
   imageUrl: text('image_url'),
   desiredWeekFrequency: integer('desired_week_frequency').notNull().default(0),
   notificationHour: time('notification_hour'),

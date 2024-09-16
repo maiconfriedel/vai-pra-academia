@@ -1,0 +1,17 @@
+meta {
+  name: Update Profile
+  type: http
+  seq: 4
+}
+
+patch {
+  url: http://localhost:3000/api/auth/me
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "notificationHour": "21:00:00"
+  }
+}
