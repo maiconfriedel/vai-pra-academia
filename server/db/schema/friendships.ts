@@ -10,7 +10,9 @@ export const friendships = pgTable(
     friend_id: text('friend_id')
       .notNull()
       .references(() => users.id),
-    createdAt: timestamp('created_at', { withTimezone: true }),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => {
     return {

@@ -10,8 +10,12 @@ export const levels = pgTable('levels', {
   userId: text('user_id').references(() => users.id),
   currentLevel: integer('current_level').notNull().default(1),
   year: integer('year').notNull(),
-  createdAt: timestamp('created_at', { withTimezone: true }),
-  updatedAt: timestamp('updated_at', { withTimezone: true }),
+  createdAt: timestamp('created_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true })
+    .notNull()
+    .defaultNow(),
 })
 
 export const levelsRelations = relations(levels, ({ one }) => {

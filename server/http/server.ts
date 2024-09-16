@@ -4,6 +4,7 @@ import { logger } from 'hono/logger'
 import { loginUserRoute } from './routes/login-user-route'
 import { profileRoutes } from './routes/profile-routes'
 import { registerUserRoute } from './routes/register-user-route'
+import { registrationsRoutes } from './routes/registration-routes'
 
 const app = new Hono()
 
@@ -14,6 +15,8 @@ app
   .route('/register', registerUserRoute)
   .route('/login', loginUserRoute)
   .route('/me', profileRoutes)
+
+app.basePath('/api/registrations').route('/', registrationsRoutes)
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {

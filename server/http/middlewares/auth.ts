@@ -3,7 +3,7 @@ import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
-import { JWTPayload } from 'hono/utils/jwt/types'
+import { type JWTPayload } from 'hono/utils/jwt/types'
 
 export const validateAuth = createMiddleware<{
   Variables: {

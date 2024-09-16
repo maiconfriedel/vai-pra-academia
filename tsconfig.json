@@ -8,7 +8,8 @@
     "jsx": "react-jsx",
     "allowJs": true,
     "paths": {
-      "@server/*" : ["./server/*"]
+      "@server/*" : ["./server/*", ],
+      "@/middlewares/*" : ["./server/http/middlewares/*", ]
     },
 
     // Bundler mode
