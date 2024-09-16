@@ -3,13 +3,17 @@ import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { registrations as registrationsTable } from '@server/db/schema'
 import { getPropertyFromUnknown } from '@server/lib/utils/getPropertyFromUnknown'
-import { eq } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { z } from 'zod'
 
 const createRegistrationSchema = z.object({
   date: z.string().date(),
   description: z.string().optional().nullable(),
+})
+
+const updateRegistrationSchema = z.object({
+  description: z.string().nullable(),
 })
 
 export const registrationsRoutes = new Hono()
@@ -39,4 +43,25 @@ export const registrationsRoutes = new Hono()
       .returning()
 
     return c.text('', 201)
+  })
+  .put('/:date', zValidator('json', updateRegistrationSchema), async (c) => {
+    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
+    const date = c.req.param('date')
+
+    const { description } = c.req.valid('json')
+
+    await db
+      .update(registrationsTable)
+      .set({
+        description,
+        updatedAt: sql`now()`,
+      })
+      .where(
+        and(
+          eq(registrationsTable.userId, userId),
+          eq(registrationsTable.date, date),
+        ),
+      )
+
+    return c.text('', 204)
   })
