@@ -11,7 +11,7 @@ import { z } from 'zod'
 
 const updateProfileSchema = z.object({
   name: z.string().optional(),
-  imageUrl: z.string().url().optional(),
+  imageUrl: z.string().url().optional().nullable(),
   desiredWeekFrequency: z.number().int().min(0).max(7).optional(),
   notificationHour: z
     .string()

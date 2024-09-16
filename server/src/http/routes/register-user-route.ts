@@ -2,6 +2,7 @@ import { db } from '@/db'
 import { users } from '@/db/schema'
 import { zValidator } from '@hono/zod-validator'
 import { Hono } from 'hono'
+import omit from 'just-omit'
 import { z } from 'zod'
 
 const registerSchema = z.object({
@@ -47,12 +48,11 @@ export const registerUserRoute = new Hono().post(
         notificationHour,
         profileVisibility,
       })
-      .returning({
-        id: users.id,
-        name: users.name,
-        email: users.email,
-      })
+      .returning()
 
-    return c.json({ user }, 201)
+    return c.json(
+      { user: omit(user[0], ['password', 'createdAt', 'updatedAt']) },
+      201,
+    )
   },
 )
