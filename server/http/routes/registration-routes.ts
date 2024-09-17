@@ -65,3 +65,18 @@ export const registrationsRoutes = new Hono()
 
     return c.text('', 204)
   })
+  .delete('/:date', async (c) => {
+    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
+    const date = c.req.param('date')
+
+    await db
+      .delete(registrationsTable)
+      .where(
+        and(
+          eq(registrationsTable.userId, userId),
+          eq(registrationsTable.date, date),
+        ),
+      )
+
+    return c.text('', 204)
+  })
