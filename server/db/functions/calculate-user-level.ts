@@ -11,7 +11,6 @@ export const calculateUserLevel = async (userId: string, year: number) => {
   const [registrationsCount] = await db
     .select({
       count: count(registrationsTable.date),
-      desiredWeekFrequency: users.desiredWeekFrequency,
       goalToLevelUp: levelsConfiguration.goalToLevelUp,
     })
     .from(registrationsTable)
@@ -26,7 +25,7 @@ export const calculateUserLevel = async (userId: string, year: number) => {
         eq(sql`extract(year from ${registrationsTable.date})`, year),
       ),
     )
-    .groupBy(users.desiredWeekFrequency, levelsConfiguration.goalToLevelUp)
+    .groupBy(levelsConfiguration.goalToLevelUp)
 
   const level = Math.floor(
     (registrationsCount?.count ?? 0) / registrationsCount.goalToLevelUp,
