@@ -46,7 +46,11 @@ export const profileRoutes = new Hono()
         user: {
           ...ommitedUser,
           levels: ommitedUser.levels.map((lvl) => {
-            return { year: lvl.year, level: lvl.level }
+            return {
+              year: lvl.year,
+              level: lvl.level,
+              updatedAt: lvl.updatedAt,
+            }
           }),
         },
       },
