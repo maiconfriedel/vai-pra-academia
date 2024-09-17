@@ -41,6 +41,6 @@ export const calculateUserLevel = async (userId: string, year: number) => {
     })
     .onConflictDoUpdate({
       target: [levels.userId, levels.year],
-      set: { level },
+      set: { level, updatedAt: sql`now()` },
     })
 }
