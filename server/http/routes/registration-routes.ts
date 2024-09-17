@@ -1,10 +1,17 @@
 import { validateAuth } from '@/middlewares/auth'
 import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
-import { registrations as registrationsTable } from '@server/db/schema'
+import {
+  levels,
+  levelsConfiguration,
+  registrations as registrationsTable,
+  users,
+} from '@server/db/schema'
 import { getPropertyFromUnknown } from '@server/lib/utils/getPropertyFromUnknown'
-import { and, eq, sql } from 'drizzle-orm'
+import dayjs from 'dayjs'
+import { and, count, eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
+import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
 
 const createRegistrationSchema = z.object({
@@ -16,15 +23,30 @@ const updateRegistrationSchema = z.object({
   description: z.string().nullable(),
 })
 
+const getRegistrationSchema = z.object({
+  year: z
+    .string()
+    .optional()
+    .transform((v) => (v === '' ? undefined : Number.parseInt(v!))),
+})
+
 export const registrationsRoutes = new Hono()
   .use(validateAuth)
-  .get('/', async (c) => {
+  .get('/', zValidator('query', getRegistrationSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
+    const { year } = c.req.valid('query')
 
     const registrations = await db
       .select()
       .from(registrationsTable)
-      .where(eq(registrationsTable.userId, userId!))
+      .where(
+        and(
+          eq(registrationsTable.userId, userId!),
+          year
+            ? eq(sql`extract(year from ${registrationsTable.date})`, year)
+            : undefined,
+        ),
+      )
 
     return c.json({ registrations }, 200)
   })
@@ -32,6 +54,19 @@ export const registrationsRoutes = new Hono()
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
 
     const { date, description } = c.req.valid('json')
+
+    console.log(date)
+
+    const existingRegistration = await db.query.registrations.findFirst({
+      where(fields, { eq, and }) {
+        return and(eq(fields.userId, userId), eq(fields.date, date))
+      },
+    })
+
+    if (existingRegistration)
+      throw new HTTPException(409, {
+        message: 'Registration already exists for this date',
+      })
 
     await db
       .insert(registrationsTable)
@@ -41,6 +76,59 @@ export const registrationsRoutes = new Hono()
         description,
       })
       .returning()
+
+    const year = dayjs(date).year()
+
+    const level = await db.query.levels.findFirst({
+      where(fields, { and, eq }) {
+        return and(eq(fields.userId, userId), eq(fields.year, year))
+      },
+    })
+
+    if (level) {
+      const registrationsCount = await db
+        .select({
+          count: count(registrationsTable.date),
+          desiredWeekFrequency: users.desiredWeekFrequency,
+          goalToLevelUp: levelsConfiguration.goalToLevelUp,
+        })
+        .from(registrationsTable)
+        .innerJoin(users, eq(users.id, registrationsTable.userId))
+        .innerJoin(
+          levelsConfiguration,
+          eq(
+            levelsConfiguration.desiredWeekFrequency,
+            users.desiredWeekFrequency,
+          ),
+        )
+        .where(
+          and(
+            eq(registrationsTable.userId, userId),
+            eq(sql`extract(year from ${registrationsTable.date})`, year),
+          ),
+        )
+        .groupBy(users.desiredWeekFrequency, levelsConfiguration.goalToLevelUp)
+
+      const level = Math.floor(
+        registrationsCount[0].count / registrationsCount[0].goalToLevelUp,
+      )
+
+      await db
+        .update(levels)
+        .set({
+          currentLevel: level,
+        })
+        .where(and(eq(levels.userId, userId), eq(levels.year, year)))
+    } else {
+      await db
+        .insert(levels)
+        .values({
+          userId,
+          year,
+          currentLevel: 0,
+        })
+        .returning()
+    }
 
     return c.text('', 201)
   })
