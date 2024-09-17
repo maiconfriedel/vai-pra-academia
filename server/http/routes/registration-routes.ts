@@ -24,13 +24,17 @@ const getRegistrationSchema = z.object({
     .string()
     .optional()
     .transform((v) => (v === '' ? undefined : Number.parseInt(v!))),
+  month: z
+    .string()
+    .optional()
+    .transform((v) => (v === '' ? undefined : Number.parseInt(v!))),
 })
 
 export const registrationsRoutes = new Hono()
   .use(validateAuth)
   .get('/', zValidator('query', getRegistrationSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
-    const { year } = c.req.valid('query')
+    const { year, month } = c.req.valid('query')
 
     const registrations = await db
       .select()
@@ -40,6 +44,9 @@ export const registrationsRoutes = new Hono()
           eq(registrationsTable.userId, userId!),
           year
             ? eq(sql`extract(year from ${registrationsTable.date})`, year)
+            : undefined,
+          month
+            ? eq(sql`extract(month from ${registrationsTable.date})`, month)
             : undefined,
         ),
       )
