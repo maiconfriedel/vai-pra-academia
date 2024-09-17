@@ -23,8 +23,8 @@ export const validateAuth = createMiddleware<{
     if (!payload) throw new HTTPException(401, { message: 'Unauthorized' })
 
     c.set('user', {
-      id: getPropertyFromUnknown<string>(payload, 'id')!,
-      email: getPropertyFromUnknown<string>(payload, 'email')!,
+      id: getPropertyFromUnknown<string>(payload.user, 'id')!,
+      email: getPropertyFromUnknown<string>(payload.user, 'email')!,
     })
   } catch (err) {
     throw new HTTPException(401, { message: 'Unauthorized', cause: err })
