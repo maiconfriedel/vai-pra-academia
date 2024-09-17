@@ -1,8 +1,10 @@
 import { validateAuth } from '@/middlewares/auth'
 import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
+import { calculateUserLevel } from '@server/db/functions/calculate-user-level'
 import { users } from '@server/db/schema'
 import { getPropertyFromUnknown } from '@server/lib/utils/getPropertyFromUnknown'
+import dayjs from 'dayjs'
 import { eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import omit from 'just-omit'
@@ -28,13 +30,28 @@ export const profileRoutes = new Hono()
       where(fields, { eq }) {
         return eq(fields.id, userId!)
       },
+      with: {
+        levels: true,
+      },
     })
 
     if (!user) {
       return c.text('', 404)
     }
 
-    return c.json({ user: omit(user, ['password']) }, 200)
+    const ommitedUser = omit(user, ['password'])
+
+    return c.json(
+      {
+        user: {
+          ...ommitedUser,
+          levels: ommitedUser.levels.map((lvl) => {
+            return { year: lvl.year, level: lvl.level }
+          }),
+        },
+      },
+      200,
+    )
   })
   .patch('/', zValidator('json', updateProfileSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
@@ -58,6 +75,11 @@ export const profileRoutes = new Hono()
         updatedAt: sql`now()`,
       })
       .where(eq(users.id, userId!))
+
+    if (desiredWeekFrequency) {
+      const year = dayjs().year()
+      await calculateUserLevel(userId!, year)
+    }
 
     return c.text('', 204)
   })

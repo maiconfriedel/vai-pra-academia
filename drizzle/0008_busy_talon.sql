@@ -1,0 +1,1 @@
+ALTER TABLE "levels" RENAME COLUMN "current_level" TO "level";

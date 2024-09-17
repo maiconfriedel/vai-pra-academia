@@ -1,15 +1,11 @@
 import { validateAuth } from '@/middlewares/auth'
 import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
-import {
-  levels,
-  levelsConfiguration,
-  registrations as registrationsTable,
-  users,
-} from '@server/db/schema'
+import { calculateUserLevel } from '@server/db/functions/calculate-user-level'
+import { registrations as registrationsTable } from '@server/db/schema'
 import { getPropertyFromUnknown } from '@server/lib/utils/getPropertyFromUnknown'
 import dayjs from 'dayjs'
-import { and, count, eq, sql } from 'drizzle-orm'
+import { and, eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { z } from 'zod'
@@ -48,14 +44,21 @@ export const registrationsRoutes = new Hono()
         ),
       )
 
-    return c.json({ registrations }, 200)
+    return c.json({ count: registrations.length, registrations }, 200)
   })
   .post('/', zValidator('json', createRegistrationSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
 
     const { date, description } = c.req.valid('json')
 
-    console.log(date)
+    const year = dayjs(date).year()
+    const currentYear = dayjs().year()
+
+    if (year !== currentYear) {
+      throw new HTTPException(400, {
+        message: 'You can only register for the current year',
+      })
+    }
 
     const existingRegistration = await db.query.registrations.findFirst({
       where(fields, { eq, and }) {
@@ -77,64 +80,22 @@ export const registrationsRoutes = new Hono()
       })
       .returning()
 
-    const year = dayjs(date).year()
-
-    const level = await db.query.levels.findFirst({
-      where(fields, { and, eq }) {
-        return and(eq(fields.userId, userId), eq(fields.year, year))
-      },
-    })
-
-    if (level) {
-      const registrationsCount = await db
-        .select({
-          count: count(registrationsTable.date),
-          desiredWeekFrequency: users.desiredWeekFrequency,
-          goalToLevelUp: levelsConfiguration.goalToLevelUp,
-        })
-        .from(registrationsTable)
-        .innerJoin(users, eq(users.id, registrationsTable.userId))
-        .innerJoin(
-          levelsConfiguration,
-          eq(
-            levelsConfiguration.desiredWeekFrequency,
-            users.desiredWeekFrequency,
-          ),
-        )
-        .where(
-          and(
-            eq(registrationsTable.userId, userId),
-            eq(sql`extract(year from ${registrationsTable.date})`, year),
-          ),
-        )
-        .groupBy(users.desiredWeekFrequency, levelsConfiguration.goalToLevelUp)
-
-      const level = Math.floor(
-        registrationsCount[0].count / registrationsCount[0].goalToLevelUp,
-      )
-
-      await db
-        .update(levels)
-        .set({
-          currentLevel: level,
-        })
-        .where(and(eq(levels.userId, userId), eq(levels.year, year)))
-    } else {
-      await db
-        .insert(levels)
-        .values({
-          userId,
-          year,
-          currentLevel: 0,
-        })
-        .returning()
-    }
+    await calculateUserLevel(userId, year)
 
     return c.text('', 201)
   })
   .put('/:date', zValidator('json', updateRegistrationSchema), async (c) => {
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
     const date = c.req.param('date')
+
+    const year = dayjs(date).year()
+    const currentYear = dayjs().year()
+
+    if (year !== currentYear) {
+      throw new HTTPException(400, {
+        message: 'You cannot update registrations from previous years',
+      })
+    }
 
     const { description } = c.req.valid('json')
 
@@ -157,6 +118,15 @@ export const registrationsRoutes = new Hono()
     const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
     const date = c.req.param('date')
 
+    const year = dayjs(date).year()
+    const currentYear = dayjs().year()
+
+    if (year !== currentYear) {
+      throw new HTTPException(400, {
+        message: 'You cannnot delete registrations from previous years',
+      })
+    }
+
     await db
       .delete(registrationsTable)
       .where(
@@ -165,6 +135,8 @@ export const registrationsRoutes = new Hono()
           eq(registrationsTable.date, date),
         ),
       )
+
+    await calculateUserLevel(userId, year)
 
     return c.text('', 204)
   })

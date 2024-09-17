@@ -57,6 +57,20 @@
       "when": 1726530585954,
       "tag": "0007_salty_karma",
       "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1726600692330,
+      "tag": "0008_busy_talon",
+      "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1726601156455,
+      "tag": "0009_massive_quasimodo",
+      "breakpoints": true
     }
   ]
 }
