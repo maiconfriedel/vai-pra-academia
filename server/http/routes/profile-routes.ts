@@ -3,7 +3,6 @@ import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { calculateUserLevel } from '@server/db/functions/calculate-user-level'
 import { users } from '@server/db/schema'
-import { getPropertyFromUnknown } from '@server/lib/utils/get-property-from-unknown'
 import dayjs from 'dayjs'
 import { eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
@@ -24,7 +23,7 @@ const updateProfileSchema = z.object({
 export const profileRoutes = new Hono()
   .use(validateAuth)
   .get('/', async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
+    const userId = c.var.user.id
 
     const user = await db.query.users.findFirst({
       where(fields, { eq }) {
@@ -58,7 +57,7 @@ export const profileRoutes = new Hono()
     )
   })
   .patch('/', zValidator('json', updateProfileSchema), async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
+    const userId = c.var.user.id
 
     const {
       name,

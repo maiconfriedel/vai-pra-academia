@@ -1,13 +1,16 @@
 import { env } from '@server/env'
+import { getPropertyFromUnknown } from '@server/lib/utils/get-property-from-unknown'
 import { getCookie } from 'hono/cookie'
 import { createMiddleware } from 'hono/factory'
 import { HTTPException } from 'hono/http-exception'
 import { verify } from 'hono/jwt'
-import { type JWTPayload } from 'hono/utils/jwt/types'
 
 export const validateAuth = createMiddleware<{
   Variables: {
-    user: JWTPayload['user']
+    user: {
+      id: string
+      email: string
+    }
   }
 }>(async (c, next) => {
   const authCookie = getCookie(c, 'auth')
@@ -19,7 +22,10 @@ export const validateAuth = createMiddleware<{
 
     if (!payload) throw new HTTPException(401, { message: 'Unauthorized' })
 
-    c.set('user', payload.user)
+    c.set('user', {
+      id: getPropertyFromUnknown<string>(payload, 'id')!,
+      email: getPropertyFromUnknown<string>(payload, 'email')!,
+    })
   } catch (err) {
     throw new HTTPException(401, { message: 'Unauthorized', cause: err })
   }

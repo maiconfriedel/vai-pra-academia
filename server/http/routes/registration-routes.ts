@@ -3,7 +3,6 @@ import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { calculateUserLevel } from '@server/db/functions/calculate-user-level'
 import { registrations as registrationsTable } from '@server/db/schema'
-import { getPropertyFromUnknown } from '@server/lib/utils/get-property-from-unknown'
 import dayjs from 'dayjs'
 import { and, eq, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
@@ -33,7 +32,7 @@ const getRegistrationSchema = z.object({
 export const registrationsRoutes = new Hono()
   .use(validateAuth)
   .get('/', zValidator('query', getRegistrationSchema), async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')
+    const userId = c.var.user.id
     const { year, month } = c.req.valid('query')
 
     const registrations = await db
@@ -54,7 +53,7 @@ export const registrationsRoutes = new Hono()
     return c.json({ count: registrations.length, registrations }, 200)
   })
   .post('/', zValidator('json', createRegistrationSchema), async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
+    const userId = c.var.user.id
 
     const { date, description } = c.req.valid('json')
 
@@ -92,7 +91,7 @@ export const registrationsRoutes = new Hono()
     return c.text('', 201)
   })
   .put('/:date', zValidator('json', updateRegistrationSchema), async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
+    const userId = c.var.user.id
     const date = c.req.param('date')
 
     const year = dayjs(date).year()
@@ -122,7 +121,7 @@ export const registrationsRoutes = new Hono()
     return c.text('', 204)
   })
   .delete('/:date', async (c) => {
-    const userId = getPropertyFromUnknown<string>(c.var.user, 'id')!
+    const userId = c.var.user.id
     const date = c.req.param('date')
 
     const year = dayjs(date).year()
