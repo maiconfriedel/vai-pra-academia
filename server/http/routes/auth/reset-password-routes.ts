@@ -1,7 +1,6 @@
 import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { resetPasswordCodes, users } from '@server/db/schema'
-import { validateAuth } from '@server/http/middlewares/auth'
 import { sendEmail } from '@server/lib/utils/send-email'
 import dayjs from 'dayjs'
 import { and, eq, gt } from 'drizzle-orm'
@@ -14,10 +13,24 @@ const resetPasswordSchema = z.object({
   code: z.string().min(1),
 })
 
+const requireResetPasswordSchema = z.object({
+  userId: z.string().min(1),
+})
+
 export const resetPasswordRoutes = new Hono()
-  .use(validateAuth)
-  .post('/reset', async (c) => {
-    const userId = c.var.user.id
+  .post('/reset', zValidator('json', requireResetPasswordSchema), async (c) => {
+    const { userId } = c.req.valid('json')
+
+    const user = await db.query.users.findFirst({
+      where(fields, { eq }) {
+        return eq(fields.id, userId)
+      },
+      columns: {
+        email: true,
+      },
+    })
+
+    if (!user) throw new HTTPException(404, { message: 'User not found' })
 
     const [code] = await db
       .insert(resetPasswordCodes)
@@ -40,7 +53,7 @@ export const resetPasswordRoutes = new Hono()
                 >
               </body>
             </html>`,
-      to: c.var.user.email,
+      to: user.email,
     })
 
     return c.text('', 204)
@@ -84,7 +97,7 @@ export const resetPasswordRoutes = new Hono()
       )
 
     if (!resetPasswordCode) {
-      return c.json({ message: 'Invalid reset password code' }, 400)
+      return c.json({ message: 'Invalid reset password code' }, 404)
     }
 
     password = await Bun.password.hash(password, {

@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { serveStatic } from 'hono/bun'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
 import { loginUserRoute } from './routes/auth/login-user-route'
@@ -11,14 +12,19 @@ const app = new Hono()
 
 app.use(logger())
 
-app
+const authRoutes = app
   .basePath('/api/auth')
   .route('/register', registerUserRoute)
   .route('/login', loginUserRoute)
   .route('/me', profileRoutes)
   .route('/password', resetPasswordRoutes)
 
-app.basePath('/api/registrations').route('/', registrationsRoutes)
+const registrationRoutes = app
+  .basePath('/api/registrations')
+  .route('/', registrationsRoutes)
+
+app.get('*', serveStatic({ root: './frontend/dist' }))
+app.get('*', serveStatic({ path: './frontend/dist/index.html' }))
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) {
@@ -29,3 +35,4 @@ app.onError((err, c) => {
 })
 
 export default app
+export type ApiRoutes = typeof authRoutes & typeof registrationRoutes
