@@ -1,10 +1,11 @@
 import { Hono } from 'hono'
 import { HTTPException } from 'hono/http-exception'
 import { logger } from 'hono/logger'
-import { loginUserRoute } from './routes/login-user-route'
-import { profileRoutes } from './routes/profile-routes'
-import { registerUserRoute } from './routes/register-user-route'
-import { registrationsRoutes } from './routes/registration-routes'
+import { loginUserRoute } from './routes/auth/login-user-route'
+import { profileRoutes } from './routes/auth/profile-routes'
+import { registerUserRoute } from './routes/auth/register-user-route'
+import { resetPasswordRoutes } from './routes/auth/reset-password-routes'
+import { registrationsRoutes } from './routes/registrations/registration-routes'
 
 const app = new Hono()
 
@@ -15,6 +16,7 @@ app
   .route('/register', registerUserRoute)
   .route('/login', loginUserRoute)
   .route('/me', profileRoutes)
+  .route('/password', resetPasswordRoutes)
 
 app.basePath('/api/registrations').route('/', registrationsRoutes)
 
