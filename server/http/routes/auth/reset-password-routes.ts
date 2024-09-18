@@ -30,12 +30,14 @@ export const resetPasswordRoutes = new Hono()
 
     // TODO - Better email template
     sendEmail({
-      subject: 'Aqui está o seu código para redefinir a senha',
+      subject: 'Vai pra Academia - Solicitação de redefinição de senha',
       text: `<html>
-              <body>
+              <body style="font-family: Arial, Helvetica, sans-serif">
                 <h1>Redefinir senha</h1>
                 <p>Olá, clique no link abaixo para redefinir sua senha:</p>
-                <a href="http://localhost:3000/api/auth/password/reset?code=${code.code}">Redefinir senha</a>
+                <a href="http://localhost:3000/api/auth/password/reset?code=${code.code}"
+                  >Redefinir senha</a
+                >
               </body>
             </html>`,
       to: c.var.user.email,

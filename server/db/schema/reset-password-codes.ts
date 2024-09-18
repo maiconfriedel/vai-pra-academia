@@ -12,5 +12,5 @@ export const resetPasswordCodes = pgTable('reset_password_codes', {
     .references(() => users.id),
   expiresAt: timestamp('expires_at')
     .notNull()
-    .default(sql`now() + interval '1 day'`),
+    .default(sql`now() + interval '1 hour'`),
 })
