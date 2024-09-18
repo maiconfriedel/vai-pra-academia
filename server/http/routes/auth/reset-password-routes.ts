@@ -2,6 +2,7 @@ import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { resetPasswordCodes, users } from '@server/db/schema'
 import { validateAuth } from '@server/http/middlewares/auth'
+import { sendEmail } from '@server/lib/utils/send-email'
 import dayjs from 'dayjs'
 import { and, eq, gt } from 'drizzle-orm'
 import { Hono } from 'hono'
@@ -26,7 +27,19 @@ export const resetPasswordRoutes = new Hono()
       .returning()
 
     console.log(code)
-    // send mail with reset password link
+
+    // TODO - Better email template
+    sendEmail({
+      subject: 'Aqui está o seu código para redefinir a senha',
+      text: `<html>
+              <body>
+                <h1>Redefinir senha</h1>
+                <p>Olá, clique no link abaixo para redefinir sua senha:</p>
+                <a href="http://localhost:3000/api/auth/password/reset?code=${code.code}">Redefinir senha</a>
+              </body>
+            </html>`,
+      to: c.var.user.email,
+    })
 
     return c.text('', 204)
   })
