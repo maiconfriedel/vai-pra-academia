@@ -42,7 +42,7 @@ const Index = () => {
           className="text-white m-12 drop-shadow-2x"
         />
       </div>
-      <div className="flex flex-1 flex-col mr-10 ml-4 mt-20 w-full h-full">
+      <div className="flex flex-1 flex-col mr-10 ml-4 mt-10 w-full h-full">
         <h1 className="text-5xl font-bold mb-8">Vai pra Academia 💪</h1>
         {showForm && (
           <form
@@ -129,15 +129,23 @@ const Index = () => {
             <Button className="w-full mt-4" type="submit">
               Criar conta
             </Button>
+            <Button
+              className="w-full "
+              variant="secondary"
+              asChild
+              type="button"
+            >
+              <Link to="/login">Já tenho conta 💪</Link>
+            </Button>
           </form>
         )}
         {!showForm && (
-          <div className="h-full flex justify-end mb-4 flex-col">
-            <Button className="mt-4" type="submit" onClick={handleStart}>
+          <div className="h-full flex justify-end flex-col">
+            <Button className="mt-2" type="button" onClick={handleStart}>
               Começar agora 🔥
             </Button>
             <Button
-              className="w-full mt-4"
+              className="w-full mt-2"
               variant="secondary"
               asChild
               type="button"
