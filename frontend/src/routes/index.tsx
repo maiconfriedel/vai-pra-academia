@@ -27,7 +27,7 @@ const Index = () => {
   return (
     <div className=" text-white h-full flex flex-row">
       <div
-        className={`text-[64px] font-bold mr-4 h-screen bg-[url('src/assets/academia.avif')] bg-cover flex flex-1 justify-start items-start`}
+        className={`text-[64px] font-bold mr-4 h-screen bg-[url('/academia.avif')] bg-cover flex flex-1 justify-start items-start`}
       >
         <Textra
           data={[
