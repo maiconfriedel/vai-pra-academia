@@ -14,7 +14,6 @@ const Login = () => {
     });
 
     if (response.status === 204) {
-      console.log("aqui");
       navigate({
         to: "/dashboard",
       });
