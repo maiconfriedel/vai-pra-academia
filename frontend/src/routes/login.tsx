@@ -1,9 +1,15 @@
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { api, userQueryOptions } from "@/lib/api";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 
 const Login = () => {
   const navigate = useNavigate();
+  const { data, isLoading } = useQuery(userQueryOptions);
+
+  if (isLoading) return null;
+
+  if (data) navigate({ to: "/dashboard" });
 
   async function handleLogin() {
     const response = await api.auth.login.$post({
