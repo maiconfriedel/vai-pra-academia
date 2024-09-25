@@ -14,28 +14,29 @@ const resetPasswordSchema = z.object({
 })
 
 const requireResetPasswordSchema = z.object({
-  userId: z.string().min(1),
+  email: z.string().email(),
 })
 
 export const resetPasswordRoutes = new Hono()
   .post('/reset', zValidator('json', requireResetPasswordSchema), async (c) => {
-    const { userId } = c.req.valid('json')
+    const { email } = c.req.valid('json')
 
     const user = await db.query.users.findFirst({
       where(fields, { eq }) {
-        return eq(fields.id, userId)
+        return eq(fields.email, email)
       },
       columns: {
+        id: true,
         email: true,
       },
     })
 
-    if (!user) throw new HTTPException(404, { message: 'User not found' })
+    if (!user) return c.json({ message: 'User not found' }, 404)
 
     const [code] = await db
       .insert(resetPasswordCodes)
       .values({
-        userId,
+        userId: user.id,
       })
       .returning()
 
