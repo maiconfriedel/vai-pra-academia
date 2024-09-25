@@ -26,7 +26,6 @@ const Index = () => {
     },
     validatorAdapter: zodValidator(),
     onSubmit: async ({ value }) => {
-      console.log(value);
       const reponse = await api.auth.register.$post({
         json: value,
       });
