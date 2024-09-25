@@ -1,11 +1,5 @@
 import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { api, userQueryOptions } from "@/lib/api";
@@ -56,11 +50,11 @@ const Login = () => {
   if (data) return navigate({ to: "/dashboard" });
 
   return (
-    <div className="p-10 flex flex-col flex-1 items-center">
-      <Card className="flex flex-1 flex-col min-w-[500px]">
+    <div className="p-10 flex flex-col flex-1 h-screen items-center bg-[url('/academia.avif')] bg-cover">
+      <div className="text-4xl font-bold mb-8">Vai pra Academia 💪</div>
+      <Card className="flex flex-col min-w-[500px] justify-start pb-6">
         <CardHeader>
-          <CardTitle>Login</CardTitle>
-          <CardDescription>Faça login no Vai pra Academia 💪</CardDescription>
+          <CardTitle className="text-center">Login</CardTitle>
         </CardHeader>
         <CardContent>
           <form
@@ -126,13 +120,13 @@ const Login = () => {
                 </div>
               )}
             />
-            <Button variant="default" type="submit" className="mt-4">
+            <Button variant="success" type="submit" className="mt-4">
               Fazer Login
             </Button>
           </form>
         </CardContent>
       </Card>
-      <div className="absolute bottom-0 p-4 bg-zinc-900 w-full flex items-center justify-center">
+      <div className="absolute bottom-0 p-4 bg-black w-full flex items-center justify-center">
         Vai pra Academia 💪 - {new Date().getFullYear()}
       </div>
     </div>
