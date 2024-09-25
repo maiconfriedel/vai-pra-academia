@@ -1,12 +1,31 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { toast } from "@/hooks/use-toast";
+import { api } from "@/lib/api";
 import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { zodValidator } from "@tanstack/zod-form-adapter";
 import { useState } from "react";
 import Textra from "react-textra";
+import { z } from "zod";
+
+const registerSchema = z.object({
+  name: z
+    .string()
+    .min(3, { message: "Nome deve possuir no mínimo 3 caracteres" }),
+  email: z.string().email({ message: "E-mail inválido" }),
+  password: z
+    .string()
+    .regex(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
+      message:
+        "Senha deve possuir no mínimo 8 caracteres, 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial",
+    }),
+  desiredWeekFrequency: z.number().int().min(0).max(7),
+});
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);
+  const navigate = useNavigate();
 
   function handleStart() {
     setShowForm(true);
@@ -17,10 +36,32 @@ const Index = () => {
       email: "",
       name: "",
       password: "",
-      desiredWeeklyFrequency: 3,
+      desiredWeekFrequency: 3,
     },
+    validatorAdapter: zodValidator(),
     onSubmit: async ({ value }) => {
       console.log(value);
+      const reponse = await api.auth.register.$post({
+        json: value,
+      });
+
+      if (reponse.status === 409)
+        toast({
+          title: "Erro ao criar conta",
+          description: "Usuário com este e-mail já existe",
+          variant: "destructive",
+        });
+
+      if (reponse.status === 201) {
+        await api.auth.login.$post({
+          json: {
+            email: value.email,
+            password: value.password,
+          },
+        });
+
+        navigate({ to: "/dashboard" });
+      }
     },
   });
 
@@ -38,7 +79,7 @@ const Index = () => {
           ]}
           effect="scale"
           duration={500}
-          stopDuration={5000}
+          stopDuration={1000}
           className="text-white m-12 drop-shadow-2x"
         />
       </div>
@@ -53,71 +94,90 @@ const Index = () => {
               form.handleSubmit();
             }}
           >
-            <label htmlFor="name" className="mr-2">
-              Nome
-            </label>
             <form.Field
               name="name"
+              validators={{ onChange: registerSchema.shape.name }}
               children={(field) => (
-                <Input
-                  id="name"
-                  type="text"
-                  className="bg-black text-white w-full py-6"
-                  placeholder="Seu nome"
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <div>
+                  <label htmlFor="name" className="mr-2">
+                    Nome
+                  </label>
+                  <Input
+                    id="name"
+                    type="text"
+                    className="bg-black text-white w-full py-6"
+                    placeholder="Seu nome"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em className="text-red-800">{field.state.meta.errors}</em>
+                  ) : null}
+                </div>
               )}
             />
-            <label htmlFor="email" className="mr-2">
-              E-mail
-            </label>
+
             <form.Field
               name="email"
+              validators={{ onChange: registerSchema.shape.email }}
               children={(field) => (
-                <Input
-                  id="email"
-                  type="email"
-                  className="bg-black text-white w-full py-6"
-                  placeholder="seu-melhor@email.com"
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <div>
+                  <label htmlFor="email" className="mr-2">
+                    E-mail
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    className="bg-black text-white w-full py-6"
+                    placeholder="seu-melhor@email.com"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em className="text-red-800">{field.state.meta.errors}</em>
+                  ) : null}
+                </div>
               )}
             />
-            <label htmlFor="email" className="mr-2">
-              Senha
-            </label>
+
             <form.Field
               name="password"
+              validators={{ onChange: registerSchema.shape.password }}
               children={(field) => (
-                <Input
-                  id="password"
-                  type="password"
-                  className="bg-black text-white w-full py-6"
-                  placeholder="*******"
-                  required
-                  value={field.state.value}
-                  onBlur={field.handleBlur}
-                  onChange={(e) => field.handleChange(e.target.value)}
-                />
+                <div>
+                  <label htmlFor="email" className="mr-2">
+                    Senha
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    className="bg-black text-white w-full py-6"
+                    placeholder="*******"
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em className="text-red-800">{field.state.meta.errors}</em>
+                  ) : null}
+                </div>
               )}
             />
             <label htmlFor="desiredWeeklyFrequency" className="mr-2">
               Meta por Semana
             </label>
             <form.Field
-              name="desiredWeeklyFrequency"
+              name="desiredWeekFrequency"
+              validators={{
+                onChange: registerSchema.shape.desiredWeekFrequency,
+              }}
               children={(field) => (
                 <Input
                   id="name"
                   type="number"
                   className="bg-black text-white w-full py-6"
-                  required
                   value={field.state.value}
                   onBlur={field.handleBlur}
                   onChange={(e) => field.handleChange(e.target.valueAsNumber)}

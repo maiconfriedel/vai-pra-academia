@@ -2,7 +2,6 @@ import { zValidator } from '@hono/zod-validator'
 import { db } from '@server/db'
 import { users } from '@server/db/schema'
 import { Hono } from 'hono'
-import { HTTPException } from 'hono/http-exception'
 import omit from 'just-omit'
 import { z } from 'zod'
 
@@ -40,9 +39,7 @@ export const registerUserRoute = new Hono().post(
     })
 
     if (existingUser)
-      throw new HTTPException(409, {
-        message: 'User with this email already exists',
-      })
+      return c.json({ message: 'User with this email already exists' }, 409)
 
     password = await Bun.password.hash(password, {
       algorithm: 'bcrypt',
