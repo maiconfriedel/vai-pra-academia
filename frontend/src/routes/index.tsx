@@ -2,26 +2,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { toast } from "@/hooks/use-toast";
 import { api } from "@/lib/api";
+import { registerSchema } from "@/sharedTypes";
 import { useForm } from "@tanstack/react-form";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { zodValidator } from "@tanstack/zod-form-adapter";
 import { useState } from "react";
 import Textra from "react-textra";
-import { z } from "zod";
-
-const registerSchema = z.object({
-  name: z
-    .string()
-    .min(3, { message: "Nome deve possuir no mínimo 3 caracteres" }),
-  email: z.string().email({ message: "E-mail inválido" }),
-  password: z
-    .string()
-    .regex(/(?=^.{8,}$)((?=.*\d)(?=.*\W+))(?![.\n])(?=.*[A-Z])(?=.*[a-z]).*$/, {
-      message:
-        "Senha deve possuir no mínimo 8 caracteres, 1 letra maiúscula, 1 letra minúscula, 1 número e 1 caractere especial",
-    }),
-  desiredWeekFrequency: z.number().int().min(0).max(7),
-});
 
 const Index = () => {
   const [showForm, setShowForm] = useState(false);

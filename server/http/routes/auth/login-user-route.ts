@@ -4,7 +4,6 @@ import { env } from '@server/env'
 import dayjs from 'dayjs'
 import { Hono } from 'hono'
 import { setCookie } from 'hono/cookie'
-import { HTTPException } from 'hono/http-exception'
 import { sign } from 'hono/jwt'
 import { z } from 'zod'
 
@@ -25,11 +24,11 @@ export const loginUserRoute = new Hono().post(
       },
     })
 
-    if (!user) throw new HTTPException(404, { message: 'User not found' })
+    if (!user) return c.json({ message: 'User not found' }, 404)
 
     const isValid = await Bun.password.verify(password, user.password!)
 
-    if (!isValid) throw new HTTPException(404, { message: 'User not found' })
+    if (!isValid) return c.json({ message: 'User not found' }, 404)
 
     const token = await sign(
       {
