@@ -1,3 +1,4 @@
+import { Footer } from "@/components/footer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -32,7 +33,7 @@ const Login = () => {
       if (response.status === 404) {
         toast({
           title: "Erro ao fazer login",
-          description: "Usuário não encontrado",
+          description: "Email ou senha inválidos",
           variant: "destructive",
         });
       }
@@ -52,7 +53,7 @@ const Login = () => {
   return (
     <div className="p-10 flex flex-col flex-1 h-screen items-center bg-[url('/academia.avif')] bg-cover">
       <div className="text-4xl font-bold mb-8">Vai pra Academia 💪</div>
-      <Card className="flex flex-col min-w-[500px] justify-start pb-6">
+      <Card className="flex flex-col min-w-[500px] max-w-[500px] justify-start pb-6">
         <CardHeader>
           <CardTitle className="text-center">Login</CardTitle>
         </CardHeader>
@@ -100,7 +101,7 @@ const Login = () => {
                     </label>
                     <Link
                       to="/forgot-password"
-                      className="text-blue-800 hover:text-blue-500"
+                      className="text-blue-700 hover:text-blue-400"
                     >
                       Esqueci minha senha
                     </Link>
@@ -126,9 +127,7 @@ const Login = () => {
           </form>
         </CardContent>
       </Card>
-      <div className="absolute bottom-0 p-4 bg-black w-full flex items-center justify-center">
-        Vai pra Academia 💪 - {new Date().getFullYear()}
-      </div>
+      <Footer />
     </div>
   );
 };

@@ -80,7 +80,7 @@ export const resetPasswordRoutes = new Hono()
     }
 
     // frontend
-    return c.redirect(`/reset-password?code=${code}`)
+    return c.redirect(`http://localhost:5173/reset-password?code=${code}`)
   })
   .put('/', zValidator('json', resetPasswordSchema), async (c) => {
     let { password, code } = c.req.valid('json')
