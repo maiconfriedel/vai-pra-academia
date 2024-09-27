@@ -28,6 +28,7 @@ export const resetPasswordRoutes = new Hono()
       columns: {
         id: true,
         email: true,
+        name: true,
       },
     })
 
@@ -54,7 +55,7 @@ export const resetPasswordRoutes = new Hono()
                 >
               </body>
             </html>`,
-      to: user.email,
+      to: `${user.name} <${user.email}>`,
     })
 
     return c.text('', 204)

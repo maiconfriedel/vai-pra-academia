@@ -21,7 +21,7 @@ export const sendEmail = async ({ to, subject, text }: MailOptions) => {
 
   // Configure the mailoptions object
   const mailOptions: nodemailer.SendMailOptions = {
-    from: 'naoresponda@vaipraacademia.com',
+    from: 'Vai pra Academia <naoresponda@vaipraacademia.com>',
     to,
     subject,
     html: text,
