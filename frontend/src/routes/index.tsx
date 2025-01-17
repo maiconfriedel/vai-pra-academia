@@ -1,41 +1,46 @@
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { api } from "@/lib/api";
-import { registerSchema } from "@/sharedTypes";
-import { useForm } from "@tanstack/react-form";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-form-adapter";
-import { useState } from "react";
-import Textra from "react-textra";
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import { toast } from '@/hooks/use-toast'
+import { api } from '@/lib/api'
+import { registerSchema } from '@/sharedTypes'
+import { useForm } from '@tanstack/react-form'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-form-adapter'
+import { useState } from 'react'
+import Textra from 'react-textra'
 
 const Index = () => {
-  const [showForm, setShowForm] = useState(false);
-  const navigate = useNavigate();
+  const [showForm, setShowForm] = useState(false)
+  const [isFormSubmitting, setIsFormSubmitting] = useState(false)
+  const navigate = useNavigate()
 
   function handleStart() {
-    setShowForm(true);
+    setShowForm(true)
   }
 
   const form = useForm({
     defaultValues: {
-      email: "",
-      name: "",
-      password: "",
+      email: '',
+      name: '',
+      password: '',
       desiredWeekFrequency: 3,
     },
     validatorAdapter: zodValidator(),
     onSubmit: async ({ value }) => {
+      setIsFormSubmitting(true)
       const reponse = await api.auth.register.$post({
         json: value,
-      });
+      })
 
-      if (reponse.status === 409)
+      if (reponse.status === 409) {
+        setIsFormSubmitting(false)
         toast({
-          title: "Erro ao criar conta",
-          description: "Usuário com este e-mail já existe",
-          variant: "destructive",
-        });
+          title: 'Erro ao criar conta',
+          description: 'Usuário com este e-mail já existe',
+          variant: 'destructive',
+        })
+      }
 
       if (reponse.status === 201) {
         await api.auth.login.$post({
@@ -43,12 +48,12 @@ const Index = () => {
             email: value.email,
             password: value.password,
           },
-        });
+        })
 
-        navigate({ to: "/dashboard" });
+        navigate({ to: '/dashboard' })
       }
     },
-  });
+  })
 
   return (
     <div className=" text-white h-full flex flex-row">
@@ -57,10 +62,10 @@ const Index = () => {
       >
         <Textra
           data={[
-            "Defina sua meta 📈",
-            "Registre seus treinos 💪",
-            "Suba de nível 🚀",
-            "Compartilhe com os amigos 🔥",
+            'Defina sua meta 📈',
+            'Registre seus treinos 💪',
+            'Suba de nível 🚀',
+            'Compartilhe com os amigos 🔥',
           ]}
           effect="scale"
           duration={500}
@@ -74,9 +79,9 @@ const Index = () => {
           <form
             className="flex flex-1 flex-col gap-2"
             onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
+              e.preventDefault()
+              e.stopPropagation()
+              form.handleSubmit()
             }}
           >
             <form.Field
@@ -171,7 +176,16 @@ const Index = () => {
                 />
               )}
             />
-            <Button className="w-full mt-4" type="submit">
+            <Button
+              className="w-full mt-4"
+              type="submit"
+              disabled={isFormSubmitting}
+            >
+              <Spinner
+                size="small"
+                className="text-black fixed mr-7"
+                show={isFormSubmitting}
+              />
               Criar conta
             </Button>
             <Button
@@ -201,9 +215,9 @@ const Index = () => {
         )}
       </div>
     </div>
-  );
-};
+  )
+}
 
-export const Route = createFileRoute("/")({
+export const Route = createFileRoute('/')({
   component: Index,
-});
+})

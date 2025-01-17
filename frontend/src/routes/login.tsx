@@ -1,54 +1,59 @@
-import { Footer } from "@/components/footer";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { toast } from "@/hooks/use-toast";
-import { api, userQueryOptions } from "@/lib/api";
-import { registerSchema } from "@/sharedTypes";
-import { useForm } from "@tanstack/react-form";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { zodValidator } from "@tanstack/zod-form-adapter";
+import { Footer } from '@/components/footer'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Input } from '@/components/ui/input'
+import { Spinner } from '@/components/ui/spinner'
+import { toast } from '@/hooks/use-toast'
+import { api, userQueryOptions } from '@/lib/api'
+import { registerSchema } from '@/sharedTypes'
+import { useForm } from '@tanstack/react-form'
+import { useQuery } from '@tanstack/react-query'
+import { createFileRoute, Link, useNavigate } from '@tanstack/react-router'
+import { zodValidator } from '@tanstack/zod-form-adapter'
+import { useState } from 'react'
 
 const loginSchema = registerSchema.omit({
   desiredWeekFrequency: true,
   name: true,
-});
+})
 
 const Login = () => {
-  const navigate = useNavigate();
-  const { data, isLoading } = useQuery(userQueryOptions);
+  const navigate = useNavigate()
+  const { data, isLoading } = useQuery(userQueryOptions)
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   const form = useForm({
     defaultValues: {
-      email: "",
-      password: "",
+      email: '',
+      password: '',
     },
     validatorAdapter: zodValidator(),
     onSubmit: async ({ value }) => {
+      setIsSubmitting(true)
       const response = await api.auth.login.$post({
         json: value,
-      });
+      })
 
       if (response.status === 404) {
         toast({
-          title: "Erro ao fazer login",
-          description: "Email ou senha inválidos",
-          variant: "destructive",
-        });
+          title: 'Erro ao fazer login',
+          description: 'Email ou senha inválidos',
+          variant: 'destructive',
+        })
+        setIsSubmitting(false)
       }
 
       if (response.status === 204) {
         navigate({
-          to: "/dashboard",
-        });
+          to: '/dashboard',
+        })
       }
     },
-  });
+  })
 
-  if (isLoading) return null;
+  if (isLoading) return null
 
-  if (data) return navigate({ to: "/dashboard" });
+  if (data) return navigate({ to: '/dashboard' })
 
   return (
     <div className="p-10 flex flex-col flex-1 h-screen items-center bg-[url('/academia.avif')] bg-cover">
@@ -61,9 +66,9 @@ const Login = () => {
           <form
             className="flex flex-col gap-2 px-4"
             onSubmit={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              form.handleSubmit();
+              e.preventDefault()
+              e.stopPropagation()
+              form.handleSubmit()
             }}
           >
             <form.Field
@@ -121,7 +126,17 @@ const Login = () => {
                 </div>
               )}
             />
-            <Button variant="success" type="submit" className="mt-4">
+            <Button
+              variant="success"
+              type="submit"
+              className="mt-4 "
+              disabled={isSubmitting}
+            >
+              <Spinner
+                size="small"
+                className="fixed mr-7"
+                show={isSubmitting}
+              />
               Fazer Login
             </Button>
           </form>
@@ -129,9 +144,9 @@ const Login = () => {
       </Card>
       <Footer />
     </div>
-  );
-};
+  )
+}
 
-export const Route = createFileRoute("/login")({
+export const Route = createFileRoute('/login')({
   component: Login,
-});
+})
