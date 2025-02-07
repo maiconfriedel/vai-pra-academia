@@ -8,7 +8,7 @@ interface MyRouterContext {
 const Root = () => {
   return (
     <>
-      <div className="h-screen">
+      <div className="h-[90vh]">
         <Outlet />
       </div>
     </>

@@ -97,11 +97,13 @@ const ForgotPassword = () => {
                 </div>
               )}
             />
-            <ReCAPTCHA
-              sitekey="6LfNHlAqAAAAAAz-blmtE7zJW5WwMtpFDTWTyGJn"
-              onChange={onChange}
-              className="mt-4"
-            />
+            <div className="flex justify-center">
+              <ReCAPTCHA
+                sitekey="6LfNHlAqAAAAAAz-blmtE7zJW5WwMtpFDTWTyGJn"
+                onChange={onChange}
+                className="mt-4"
+              />
+            </div>
             <Button variant="success" type="submit" className="mt-4">
               Enviar e-mail de recuperação
             </Button>
