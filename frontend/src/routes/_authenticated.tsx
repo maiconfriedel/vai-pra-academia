@@ -5,23 +5,23 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/drodpown-menu";
-import { userQueryOptions } from "@/lib/api";
-import { useQuery } from "@tanstack/react-query";
+} from '@/components/ui/drodpown-menu'
+import { userQueryOptions } from '@/lib/api'
+import { useQuery } from '@tanstack/react-query'
 import {
   createFileRoute,
   Link,
   Outlet,
   useNavigate,
-} from "@tanstack/react-router";
+} from '@tanstack/react-router'
 
 const NavBar = () => {
-  const { data } = useQuery(userQueryOptions);
+  const { data } = useQuery(userQueryOptions)
 
-  if (!data) return null;
+  if (!data) return null
 
   function handleLogout() {
-    window.location.href = "/api/auth/logout";
+    window.location.href = '/api/auth/logout'
   }
 
   return (
@@ -36,7 +36,7 @@ const NavBar = () => {
           <DropdownMenuTrigger asChild>
             <img
               src={
-                data.user.imageUrl ?? "https://www.gravatar.com/avatar/?d=mp"
+                data.user.imageUrl ?? 'https://www.gravatar.com/avatar/?d=mp'
               }
               alt={data.user.name}
               className="w-10 h-10 rounded-full cursor-pointer"
@@ -63,15 +63,15 @@ const NavBar = () => {
         </DropdownMenu>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const Component = () => {
-  const { user } = Route.useRouteContext();
-  const navigate = useNavigate();
+  const { user } = Route.useRouteContext()
+  const navigate = useNavigate()
 
   if (!user) {
-    navigate({ to: "/login" });
+    navigate({ to: '/login' })
   }
 
   return (
@@ -79,20 +79,20 @@ const Component = () => {
       <NavBar />
       <Outlet />
     </>
-  );
-};
+  )
+}
 
 // src/routes/_authenticated.tsx
-export const Route = createFileRoute("/_authenticated")({
+export const Route = createFileRoute('/_authenticated')({
   beforeLoad: async ({ context }) => {
-    const queryClient = context.queryClient;
+    const queryClient = context.queryClient
 
     try {
-      const data = await queryClient.fetchQuery(userQueryOptions);
-      return data;
+      const data = await queryClient.fetchQuery(userQueryOptions)
+      return data
     } catch {
-      return { user: null };
+      return { user: null }
     }
   },
   component: Component,
-});
+})

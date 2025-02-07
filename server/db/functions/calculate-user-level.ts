@@ -28,7 +28,7 @@ export const calculateUserLevel = async (userId: string, year: number) => {
     .groupBy(levelsConfiguration.goalToLevelUp)
 
   const level = Math.floor(
-    (registrationsCount?.count ?? 0) / registrationsCount.goalToLevelUp,
+    (registrationsCount?.count ?? 0) / (registrationsCount?.goalToLevelUp ?? 1),
   )
 
   await db
