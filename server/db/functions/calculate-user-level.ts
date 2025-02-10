@@ -27,9 +27,11 @@ export const calculateUserLevel = async (userId: string, year: number) => {
     )
     .groupBy(levelsConfiguration.goalToLevelUp)
 
-  const level = Math.floor(
+  let level = Math.floor(
     (registrationsCount?.count ?? 0) / (registrationsCount?.goalToLevelUp ?? 1),
   )
+
+  if (level > 20) level = 20 // Max level
 
   await db
     .insert(levels)
