@@ -20,7 +20,7 @@ import { toast } from '@/hooks/use-toast'
 import { api, userQueryOptions } from '@/lib/api'
 import { registerSchema } from '@/sharedTypes'
 import { useForm } from '@tanstack/react-form'
-import { useQuery } from '@tanstack/react-query'
+import { useQuery, useQueryClient } from '@tanstack/react-query'
 import { createFileRoute, Link } from '@tanstack/react-router'
 import { zodValidator } from '@tanstack/zod-form-adapter'
 import { useEffect, useState } from 'react'
@@ -48,6 +48,7 @@ const Profile = () => {
   >(undefined)
   const [editEnabled, setEditEnabled] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const queryClient = useQueryClient()
 
   const form = useForm({
     defaultValues: {
@@ -75,6 +76,7 @@ const Profile = () => {
           description: 'Perfil atualizado com sucesso',
           variant: 'default',
         })
+        queryClient.invalidateQueries({ queryKey: ['get-current-user'] })
       } else {
         toast({
           title: 'Erro ao atualizar perfil',
@@ -143,7 +145,9 @@ const Profile = () => {
               to="/forgot-password"
               search={{ email: userData?.email ?? '' }}
             >
-              <Button className="mt-4">Alterar Senha</Button>
+              <Button className="mt-4" type="button">
+                Alterar Senha
+              </Button>
             </Link>
           </div>
         </div>
@@ -155,7 +159,7 @@ const Profile = () => {
             }}
             children={(field) => (
               <div className="flex flex-col sm:w-[25%] items-start">
-                <label htmlFor="profileVisibility">Frequência Semanal</label>
+                <label htmlFor="profileVisibility">Frequência Semanal:</label>
                 <Input
                   id="profileVisibility"
                   type="number"
@@ -191,7 +195,7 @@ const Profile = () => {
             name="profileVisibility"
             children={(field) => (
               <div className="flex flex-col sm:w-[50%] items-start">
-                <label htmlFor="profileVisibility">Visibilidade Perfil</label>
+                <label htmlFor="profileVisibility">Visibilidade Perfil:</label>
                 <Select
                   disabled={!editEnabled}
                   value={field.state.value}
@@ -261,7 +265,7 @@ const Profile = () => {
           .map((level) => (
             <div
               key={`${level.year}-${level.level}`}
-              className={`flex flex-row items-center justify-between w-full mt-2 bg-zinc-900 p-2 rounded-sm ${level.year === new Date().getFullYear() ? 'border-2 border-green-900' : ''}`}
+              className="flex flex-row items-center justify-between w-full mt-2 bg-zinc-900 p-3 rounded-sm"
             >
               <div>
                 <span className="text-lg font-semibold">
