@@ -53,7 +53,7 @@ const Login = () => {
 
   if (isLoading) return null
 
-  if (data) return navigate({ to: '/dashboard' })
+  if (data) navigate({ to: '/dashboard' })
 
   return (
     <div className="p-10 flex flex-col flex-1 h-screen items-center bg-[url('/academia.avif')] bg-cover">
@@ -106,6 +106,9 @@ const Login = () => {
                     </label>
                     <Link
                       to="/forgot-password"
+                      search={{
+                        email: form.getFieldValue('email'),
+                      }}
                       className="text-blue-700 hover:text-blue-400"
                     >
                       Esqueci minha senha
